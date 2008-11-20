@@ -23,7 +23,7 @@ class CSV_Dialect_Test extends CSV_Dialect_Base {
 	public $delimiter = ",";
 	
 	public $line_end = "\r\n";
-	
-	public $has_header = false;
+		
+	public $skip_initial_space = true;
 }
 ?>

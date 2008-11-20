@@ -220,10 +220,23 @@ class CSV_Reader {
         
         /* Log start of processing */
         $this->log->log("Parsing {$file} using ".get_class($dialect)." dialect.", PEAR_LOG_INFO);
+
+        /* Check to see if we have line delimiters at the end of the string */
+        $fix_last_record = false;
+        $end_len = mb_strlen($this->dialect->line_end, "UTF-8");
+        $offset = mb_strlen($contents, "UTF-8") - $end_len;
+        $ending = mb_substr($contents, $offset, $end_len, "UTF-8");
+        
+        if($ending == $this->dialect->line_end) {
+            $fix_last_record = true;
+        }
         
         /* Split the file contents into lines */
         $this->file = mb_split($this->dialect->line_end, $contents);
-        array_pop($this->file);
+        
+        if($fix_last_record) {
+            array_pop($this->file);
+        }
         
         /* Read the first line */
         $this->read_next_line();
