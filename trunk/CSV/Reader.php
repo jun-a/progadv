@@ -9,7 +9,7 @@
  * @filesource 
  */
 
-//define("DEBUG", false);
+//define("DEBUG", true);
 
 /**
  * CSV reader class.
@@ -38,7 +38,7 @@ class CSV_Reader {
     const STATEINWORD = 1;
     
     /**
-     * Parser state for word in double quotes
+     * Parser state for word in quotes
      * 
      * @access public
      * @static
@@ -47,13 +47,23 @@ class CSV_Reader {
     const STATEINQUOTEWORD = 2;
     
     /**
-     * Parser state for reading a double quote.
+     * Parser state for reading a quote in a quoted word.
      * 
      * @access public
      * @static
      * @var integer
      */
     const STATEQUOTEINQUOTEWORD = 3;
+    
+    /**
+     * Parser state for reading escape character in a word.
+     */
+    const STATEESCAPEINWORD = 4;
+    
+    /**
+     * Parser state for reading escape character in a quoted word.
+     */
+    const STATEESCAPEINQUOTEWORD = 5;
     
     /**
      * The path to the file to be read.
@@ -161,7 +171,7 @@ class CSV_Reader {
      * @access private
      * @var string[]
      */
-    private $statedbg = array("STATEDELIM", "STATEINWORD", "STATEINQUOTEWORD", "STATEQUOTEINQUOTEWORD");
+    private $statedbg = array("STATEDELIM", "STATEINWORD", "STATEINQUOTEWORD", "STATEQUOTEINQUOTEWORD", "STATEESCAPEINWORD", "STATEESCAPEINQUOTEWORD");
     
     /**
      * microseconds when processing started.
@@ -362,7 +372,7 @@ class CSV_Reader {
     public function next() {
 
 		
-        if(count($this->file) < $this->fp && $this->_current_line == "") {
+        if(count($this->file) <= $this->fp && $this->_current_line == "") {
             $this->log->log("Runtime Exception: Tried to read past end of file.", PEAR_LOG_CRIT);
         	throw new RuntimeException("Read past end of file in next().");
         }
@@ -370,13 +380,6 @@ class CSV_Reader {
         $this->parse($this->_current_line);
         
         $this->read_next_line();
-        
-        if(defined("DEBUG")) {
-            
-            foreach($this->get_current_line_columns() as $key => $val) {
-            //    $this->log->log($this->header[$key] . ": " . $val, PEAR_LOG_INFO);
-            }
-        }
         
         return $this->get_current_line_columns();
     }
@@ -391,7 +394,7 @@ class CSV_Reader {
     private function parse($line) {
         $this->_columns = array();
         $this->new_word();
-        $this->log->log("New Line.", PEAR_LOG_INFO);
+        $this->log->log("--- New Line ---", PEAR_LOG_INFO);
         for($i = 0; $i < mb_strlen($this->_current_line, "UTF-8"); $i++) {
         	$char = mb_substr($this->_current_line, $i, 1, "UTF-8");
             $this->char_event($char);
@@ -427,10 +430,17 @@ class CSV_Reader {
     private function read_next_line() {
     	
     	do {
-    		$line = $this->file[$this->fp++]; 
+    	    if($this->fp == count($this->file)) {
+    	        $this->_current_line = false;
+    	        break;
+    	    }
+    	    
+    		$line = $this->file[$this->fp]; 
     		
     	    $this->_current_line = $line;
     		
+    	    $this->fp++;
+    	    
         	if(defined("DEBUG")) {
         	    $this->log->log("Line: " . $this->_current_line, PEAR_LOG_NOTICE);
         	    $this->log->log("", PEAR_LOG_NOTICE);
@@ -479,6 +489,9 @@ class CSV_Reader {
     	   	case $this->dialect->quote_char:
     	   		$this->quote_event();
     	   		break;
+    	   	case $this->dialect->escape_char:
+    	   	    $this->escape_event();
+    	   	    break;
             case "\t":
     	    case ' ':
     	    	$this->whitespace_event($char);
@@ -526,7 +539,6 @@ class CSV_Reader {
         switch($this->_state) {
             case CSV_Reader::STATEINWORD:
                 $this->write_end_trim_word();
-                $this->log->log("Found token: ". $this->_column_buffer->__toString(), PEAR_LOG_INFO);
                 $this->new_word();
                 $this->_state = CSV_Reader::STATEDELIM;
                 break;
@@ -538,14 +550,53 @@ class CSV_Reader {
             	break;
             case CSV_Reader::STATEQUOTEINQUOTEWORD:
                 $this->write_word();
-                $this->log->log("Found token: ". $this->_column_buffer->__toString(), PEAR_LOG_INFO);
                 $this->new_word();
             	$this->_state = CSV_Reader::STATEDELIM;
             	break;
+            case CSV_Reader::STATEESCAPEINWORD:
+                $this->append($this->dialect->delimiter);
+                $this->_state = CSV_Reader::STATEINWORD;
+                break;
         }
         
         if(defined("DEBUG")) {
             $this->log->log("After Delimiter Event (State: ".$this->statedbg[$this->_state].")", PEAR_LOG_DEBUG);
+        }
+    }
+    
+    /**
+     * Generate an escape character event
+     * 
+     * @access public
+     * @param string $char
+     * @return void
+     */
+    public function escape_event($char) {
+        if(defined("DEBUG")) {
+            $this->log->log("Before Escape Event (State: ".$this->statedbg[$this->_state].")", PEAR_LOG_DEBUG);
+        }
+        
+        switch($this->_state) {
+            case CSV_Reader::STATEINWORD:
+                $this->_state = CSV_Reader::STATEESCAPEINWORD;
+                break;
+            case CSV_Reader::STATEINQUOTEWORD:
+                $this->_state = CSV_Reader::STATEESCAPEINQUOTEWORD;
+                break;
+            case CSV_Reader::STATEESCAPEINWORD:
+                $this->append($this->dialect->escape_char);
+                $this->_state = CSV_Reader::STATEINWORD;
+                break;
+            case CSV_Reader::STATEESCAPEINQUOTEWORD:
+                $this->append($this->dialect->escape_char);
+                $this->_state = CSV_Reader::STATEINQUOTEWORD;
+                break;
+            default:
+                $this->_state = CSV_Reader::STATEINWORD;
+        }
+        
+        if(defined("DEBUG")) {
+            $this->log->log("After Escape Event (State: ".$this->statedbg[$this->_state].")", PEAR_LOG_DEBUG);
         }
     }
     
@@ -574,6 +625,14 @@ class CSV_Reader {
             	$this->new_word();*/
             	break;
             case CSV_Reader::STATEQUOTEINQUOTEWORD:
+                $this->append($this->dialect->quote_char);
+                $this->_state = CSV_Reader::STATEINQUOTEWORD;
+                break;
+            case CSV_Reader::STATEESCAPEINWORD:
+                $this->append($this->dialect->quote_char);
+                $this->_state = CSV_Reader::STATEINWORD;
+                break;
+            case CSV_Reader::STATEESCAPEINQUOTEWORD:
                 $this->append($this->dialect->quote_char);
                 $this->_state = CSV_Reader::STATEINQUOTEWORD;
                 break;
@@ -607,7 +666,14 @@ class CSV_Reader {
             case CSV_Reader::STATEINQUOTEWORD:
             	$this->append($char);
             	break;
-                        
+            case CSV_Reader::STATEESCAPEINWORD:
+                $this->append($this->dialect->escape_char.$char);
+                $this->_state = CSV_Reader::STATEINWORD;
+                break;
+            case CSV_Reader::STATEESCAPEINQUOTEWORD:
+                $this->append($this->dialect->escape_char.$char);
+                $this->_state = CSV_Reader::STATEINQUOTEWORD;
+                break;
         }
         
         if(defined("DEBUG")) {
@@ -671,6 +737,7 @@ class CSV_Reader {
      */
     public function write_word() {
         $this->_columns[] = $this->get_current_column();
+        $this->log->log("Found token: ". $this->_column_buffer->__toString(), PEAR_LOG_INFO);
     }
     
     /**
@@ -680,7 +747,19 @@ class CSV_Reader {
      * @return void
      */
     public function write_end_trim_word() {
-        $this->_columns[] = $this->end_trim($this->get_current_column());
+        
+        if($this->dialect->quoting == CSV_Dialect_Base::QUOTE_NONNUMERIC) {
+            /*
+             * We only get here if the read word is not quoted. This means
+             * it is a number so convert it to float.
+             */
+            $col = (float) $this->end_trim($this->get_current_column());
+        } else {
+            $col = $this->end_trim($this->get_current_column());
+        }
+        
+        $this->_columns[] = $col;
+        $this->log->log("Found token: ". $this->_column_buffer->__toString(), PEAR_LOG_INFO);
     }
     
     /**
