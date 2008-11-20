@@ -298,7 +298,7 @@ class CSV_Reader {
      */
     private function get_input_enc($file) {
         if (substr(php_uname(), 0, 7) == "Windows") {
-            $cmd = BASE_PATH."/gnuw32/bin/file.exe -bi " . $file;
+            $cmd = "file.exe -bi " . $file;
             $info = popen($cmd, "r");
 
             $data = fread($info, 2096);
@@ -476,11 +476,11 @@ class CSV_Reader {
     	    case $this->dialect->delimiter:
     	    	$this->delimiter_event();
     	    	break;
-    	   	case '"':
-    	   		$this->double_quote_event();
+    	   	case $this->dialect->quote_char:
+    	   		$this->quote_event();
     	   		break;
+            case "\t":
     	    case ' ':
-    	    case "\t":
     	    	$this->whitespace_event($char);
     	    	break;
     	   	default:
@@ -537,6 +537,9 @@ class CSV_Reader {
             	$this->append($this->dialect->delimiter);
             	break;
             case CSV_Reader::STATEQUOTEINQUOTEWORD:
+                $this->write_word();
+                $this->log->log("Found token: ". $this->_column_buffer->__toString(), PEAR_LOG_INFO);
+                $this->new_word();
             	$this->_state = CSV_Reader::STATEDELIM;
             	break;
         }
@@ -547,14 +550,14 @@ class CSV_Reader {
     }
     
     /**
-     * Generate a double quote event.
+     * Generate a quote event.
      * 
      * @access public
      * @return void
      */
-    public function double_quote_event() {
+    public function quote_event() {
         if(defined("DEBUG")) {
-            $this->log->log("Before Double Quote Event (State: ".$this->statedbg[$this->_state].")", PEAR_LOG_DEBUG);
+            $this->log->log("Before Quote Event (State: ".$this->statedbg[$this->_state].")", PEAR_LOG_DEBUG);
         }
         
         switch($this->_state) {
@@ -562,18 +565,22 @@ class CSV_Reader {
             	$this->_state = CSV_Reader::STATEINQUOTEWORD;
             	break;
             case CSV_Reader::STATEINWORD:
-            	$this->append('"');
+            	$this->append($this->dialect->quote_char);
             	break;
             case CSV_Reader::STATEINQUOTEWORD:
             	$this->_state = CSV_Reader::STATEQUOTEINQUOTEWORD;
-            	$this->write_word();
+            	/*$this->write_word();
             	$this->log->log("Found token: ". $this->_column_buffer->__toString(), PEAR_LOG_INFO);
-            	$this->new_word();
+            	$this->new_word();*/
             	break;
+            case CSV_Reader::STATEQUOTEINQUOTEWORD:
+                $this->append($this->dialect->quote_char);
+                $this->_state = CSV_Reader::STATEINQUOTEWORD;
+                break;
         }
         
         if(defined("DEBUG")) {
-            $this->log->log("After Double Quote Event (State: ".$this->statedbg[$this->_state].")", PEAR_LOG_DEBUG);
+            $this->log->log("After Quote Event (State: ".$this->statedbg[$this->_state].")", PEAR_LOG_DEBUG);
         }
     }
     
@@ -599,7 +606,8 @@ class CSV_Reader {
             	break;
             case CSV_Reader::STATEINQUOTEWORD:
             	$this->append($char);
-            	break;            
+            	break;
+                        
         }
         
         if(defined("DEBUG")) {

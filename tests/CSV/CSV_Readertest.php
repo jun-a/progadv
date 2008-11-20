@@ -271,10 +271,10 @@ class CSV_Readertest extends PHPUnit_Framework_TestCase {
         $this->reader->char_event('a');
         $this->reader->char_event('"');
         $this->assertEquals(CSV_Reader::STATEQUOTEINQUOTEWORD, $this->reader->get_state());
+        $this->reader->char_event(',');
         $columns = $this->reader->get_current_line_columns();
         $this->assertEquals("A,a", $columns[0]);
         
-        $this->reader->char_event(',');
         $this->assertEquals(CSV_Reader::STATEDELIM, $this->reader->get_state());
         
         $this->reader->char_event('b');
