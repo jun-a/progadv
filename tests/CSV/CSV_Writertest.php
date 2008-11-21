@@ -51,7 +51,7 @@ class CSV_Writertest extends PHPUnit_Framework_TestCase {
     
     public function setUp() {
         $this->dialect = new CSV_Dialect_Test();
-        $this->dialect->quoting = CSV_Dialect_Base::QUOTE_NONE;
+        //$this->dialect->quoting = CSV_Dialect_Base::QUOTE_NONE;
         $this->file_data = array("name" => BASE_PATH."/tmp/writer.tmp.csv",
                       "mode" => "w");
     }
@@ -165,9 +165,11 @@ class CSV_Writertest extends PHPUnit_Framework_TestCase {
     }
     
     public function testWriteNoQuotes() {
-        $data = array("Column 1", "Column 2");
+        $data = array("Column \\ \" 1", "Column 2");
         
         $this->dialect->quoting = CSV_Dialect_Base::QUOTE_NONE;
+        $this->dialect->escape_char = '\\';
+        $this->dialect->double_quote = true;
         
         $writer = $this->get_writer();
         
@@ -176,7 +178,7 @@ class CSV_Writertest extends PHPUnit_Framework_TestCase {
         
         $contents = file_get_contents($this->file_data['name']);
         
-        $this->assertEquals("Column 1,Column 2".$this->dialect->line_end, $contents);
+        $this->assertEquals("Column \\\\ \\\" 1,Column 2".$this->dialect->line_end, $contents);
     }
     
     public function testWriteQuoteMinimal() {

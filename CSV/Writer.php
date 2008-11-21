@@ -205,10 +205,12 @@ class CSV_Writer {
              */
             switch($this->dialect->quoting) {
                 case CSV_Dialect_Base::QUOTE_NONE:
+                    /* Escape the escape character */
+                    $column = $this->escape_escape_char($column);
                     /* Escape delimiter characters */
-                    if($this->has_delimiter($column)) {
-                        $column = $this->escape_delimiter($column);
-                    }
+                    $column = $this->escape_delimiter($column);
+                    /* Escape the quote character */
+                    $column = $this->escape_quote($column);
                     break;
                 case CSV_Dialect_Base::QUOTE_NONNUMERIC:
                     if($this->is_non_numeric($column)) {
@@ -216,7 +218,7 @@ class CSV_Writer {
                     }
                     break;
                 case CSV_Dialect_Base::QUOTE_ALL:
-                    $column = $this->quote($column);
+                    $column = $this->quote($this->escape($column));
                     break;
                 case CSV_Dialect_Base::QUOTE_MINIMAL:
                 default:
@@ -245,6 +247,33 @@ class CSV_Writer {
         } else {
             $column = $this->escape_quote($column);
         }
+        
+        return $column;
+    }
+    
+    /**
+     * Escapes the escape character if it is found in the output.
+     * 
+     * @access private
+     * @param string $column
+     * @return string
+     */
+    private function escape_escape_char($column) {
+        if ($this->dialect->escape_char == 'None') {
+            throw new RuntimeException("Need to escape, but "
+                        . "no escape character set in ".get_class($this->dialect)
+                        . " dialect.");
+        }
+        
+        if($this->dialect->escape_char == '\\') {
+            $pattern = '\\\\';
+            $replace = '\\\\';
+        } else {
+            $pattern = $this->dialect->escape_char;
+            $replace = $pattern.$pattern;
+        }
+        
+        $column = mb_ereg_replace($pattern, $replace, $column);
         
         return $column;
     }
@@ -310,21 +339,7 @@ class CSV_Writer {
                     
         return $column;
     }
-    
-    
-    /**
-     * Check wether the $column argument contains the $delimiter character set
-     * in the dialect.
-     * 
-     * @access private
-     * @param string $column
-     * @return boolean
-     */
-    private function has_delimiter(&$column) {
-        mb_ereg_search_init($column, $this->dialect->delimiter);
-        return mb_ereg_search();
-    }
-    
+        
     /**
      * Check for special characters such as delimiter, quote_char
      * 

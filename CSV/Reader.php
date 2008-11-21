@@ -571,7 +571,7 @@ class CSV_Reader {
      * @param string $char
      * @return void
      */
-    public function escape_event($char) {
+    public function escape_event() {
         if(defined("DEBUG")) {
             $this->log->log("Before Escape Event (State: ".$this->statedbg[$this->_state].")", PEAR_LOG_DEBUG);
         }
@@ -581,15 +581,11 @@ class CSV_Reader {
                 $this->_state = CSV_Reader::STATEESCAPEINWORD;
                 break;
             case CSV_Reader::STATEINQUOTEWORD:
-                $this->_state = CSV_Reader::STATEESCAPEINQUOTEWORD;
+                $this->append($this->dialect->escape_char);
                 break;
             case CSV_Reader::STATEESCAPEINWORD:
                 $this->append($this->dialect->escape_char);
                 $this->_state = CSV_Reader::STATEINWORD;
-                break;
-            case CSV_Reader::STATEESCAPEINQUOTEWORD:
-                $this->append($this->dialect->escape_char);
-                $this->_state = CSV_Reader::STATEINQUOTEWORD;
                 break;
             default:
                 $this->_state = CSV_Reader::STATEINWORD;
@@ -620,9 +616,6 @@ class CSV_Reader {
             	break;
             case CSV_Reader::STATEINQUOTEWORD:
             	$this->_state = CSV_Reader::STATEQUOTEINQUOTEWORD;
-            	/*$this->write_word();
-            	$this->log->log("Found token: ". $this->_column_buffer->__toString(), PEAR_LOG_INFO);
-            	$this->new_word();*/
             	break;
             case CSV_Reader::STATEQUOTEINQUOTEWORD:
                 $this->append($this->dialect->quote_char);
@@ -667,12 +660,8 @@ class CSV_Reader {
             	$this->append($char);
             	break;
             case CSV_Reader::STATEESCAPEINWORD:
-                $this->append($this->dialect->escape_char.$char);
+                $this->append($char);
                 $this->_state = CSV_Reader::STATEINWORD;
-                break;
-            case CSV_Reader::STATEESCAPEINQUOTEWORD:
-                $this->append($this->dialect->escape_char.$char);
-                $this->_state = CSV_Reader::STATEINQUOTEWORD;
                 break;
         }
         
