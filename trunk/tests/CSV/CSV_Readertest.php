@@ -324,7 +324,7 @@ class CSV_Readertest extends PHPUnit_Framework_TestCase {
      * @access public
      * @return void
      */
-    public function testEmptyLine() {
+    /*public function testEmptyLine() {
         try {
         	$this->writeln("");
         	$this->reader = $this->get_reader_close_writer();
@@ -333,7 +333,7 @@ class CSV_Readertest extends PHPUnit_Framework_TestCase {
         } catch (Exception $e) {
             $this->fail($e->getMessage());
         }
-    }
+    }*/
     
     /**
      * Test for end of file.
@@ -449,6 +449,42 @@ class CSV_Readertest extends PHPUnit_Framework_TestCase {
         } catch(RuntimeException $e) {
             $this->pass();
         }
+    }
+    
+    public function testReadingQuoteNonNumeric() {
+        $dialect = new CSV_Dialect_Base();
+        $dialect->quoting = CSV_Dialect_Base::QUOTE_NONNUMERIC;
+        
+        $reader = new CSV_Reader($this->filename, $dialect);
+        
+        $this->send_char_events($reader, '"Column \\ "" 1",15,"3 , Column"');
+        $reader->end_of_string_event();
+        
+        $columns = $reader->get_current_line_columns();
+        $this->assertEquals(3, count($columns));
+        $this->assertEquals("Column \\ \" 1", $columns[0]);
+        $this->assertEquals(15.0, $columns[1]);
+        $this->assertEquals("3 , Column", $columns[2]);
+    }
+    
+    public function testReadingQuoteNone() {
+        $dialect = new CSV_Dialect_Base();
+        $dialect->quoting = CSV_Dialect_Base::QUOTE_NONE;
+        $dialect->escape_char = '\\';
+        
+        $reader = new CSV_Reader($this->filename, $dialect);
+        $this->send_char_events($reader, 'Column \\\\ \" 1,15,3 \, Column');
+        $reader->end_of_string_event();
+        
+        $columns = $reader->get_current_line_columns();
+        $this->assertEquals(3, count($columns));
+        $this->assertEquals("Column \\ \" 1", $columns[0]);
+        $this->assertEquals(15, $columns[1]);
+        $this->assertEquals("3 , Column", $columns[2]);
+    }
+    
+    public function testReadingQuoteMinimal() {
+        
     }
 }
 ?>
