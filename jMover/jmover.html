@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>jMover Demo page</title>
+<style type="text/css">
+    #left_select, #right_select {
+        float: left;
+        margin-right: 5px;
+        vertical-align: top;
+        width: 25%;
+    }
+    
+    #select_buttons {
+        float: left;
+        margin-right: 5px;
+        vertical-align: top;
+        width: 15%;
+        text-align: center;
+        margin-top: 10%;
+    }
+    
+    label {
+        text-align:left;
+        vertical-align:top;
+        width:7em;
+    }
+    
+    #selected, #not_selected {
+        margin-bottom:5px;
+        width:100%;
+    }
+    input, select, textarea {
+        border:1px solid #000000;
+        color:#000000;
+    }
+    
+    span.up {
+        background-color:#D4D0C8;
+        border:1px solid #000000;
+        color:#000000;
+        cursor:pointer;
+    }
+    
+    #select_buttons span a {
+        width: 20px;
+    }
+</style>
+<script type="text/javascript" src="jquery-1.2.6.min.js"></script>
+<script type="text/javascript" src="jquery.jmover.js"></script>
+<script type="text/javascript">
+    $(function() {
+        $("#move_right").click(function() {$.jMover('selected', 'not_selected');});
+        $("#move_left").click(function() {$.jMover('not_selected', 'selected');});
+    });
+</script>
+</head>
+<body>
+<form>
+<div id="left_select">
+    <label>Select 1</label>
+    <select id="not_selected" name="not_selected" size="15" multiple="multiple">
+        <option value="1">One</option>
+        <option value="2">Two</option>
+        <option value="3">Three</option>
+    </select>
+</div>
+<div id="select_buttons">
+    <p>
+        <span id="move_right" class="up">
+            <a>&nbsp;&gt;&nbsp;</a>
+        </span>
+    </p>
+    <p>
+        <span id="move_left" class="up">
+            <a>&nbsp;&lt;&nbsp;</a>
+        </span>
+    </p>
+</div>
+<div id="right_select">
+    <label>Select 2</label>
+    <select id="selected" name="selected[]" size="15" multiple="multiple">
+    </select>
+</div>
+</form>
+</body>
+</html>
