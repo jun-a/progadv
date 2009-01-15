@@ -21,6 +21,10 @@
 		var option = document.createElement("option");
 		option.value = $(this).val();
 		option.text = $(this).text();
+		
+		if($.browser.msie) {
+			option.appendChild(document.createTextNode($(this).text()));
+		}
 					
 		$("#"+to).append(option);
 		});
