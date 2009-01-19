@@ -22,7 +22,7 @@
 		option.value = $(this).val();
 		option.text = $(this).text();
 		
-		if($.browser.msie) {
+		if(!$.support.scriptEval) {
 			option.appendChild(document.createTextNode($(this).text()));
 		}
 					
