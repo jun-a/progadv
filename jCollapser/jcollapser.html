@@ -4,17 +4,20 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>jCollapser Demo page</title>
-<script type="text/javascript" src="jquery-1.2.6.min.js"></script>
-<script type="text/javascript" src="jquery.collapser.js"></script>
+<script type="text/javascript" src="jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="jquery.jcollapser.js"></script>
 <script type="text/javascript" src="jquery.cookie.js"></script>
 <script type="text/javascript">
     $(function() {
     	/* Initialize the state of the element according to the cookie set */
-        $.collapser.init({target: '#jcollapse'});
+        /*$.collapser.init({target: '#jcollapse1'});*/
         
         /* Set up the Collapse/Expand functionality for the job list table */
-        $(".collapse").bind("click", {id: "example", target: "#jcollapse"}, $.collapser.collapse);
-        $(".expand").bind("click", {id: "example", target: "#jcollapse"}, $.collapser.expand);
+        /*$(".collapse").bind("click", {id: "example1", target: "#jcollapse1"}, $.collapser.collapse);
+        $(".expand").bind("click", {id: "example1", target: "#jcollapse1"}, $.collapser.expand);*/
+
+        $("#example1").jcollapser({target: '#jcollapse1'});
+        $("#example2").jcollapser({target: '#jcollapse2'});
     });
 </script>
 <style type="text/css">
@@ -38,10 +41,19 @@
 </head>
 <body>
 <div>
-    <fieldset id="example">
+    <fieldset id="example1">
     <div class="collapse" ></div>
     <div class="expand" ></div>
-    <div id="jcollapse">
+    <div id="jcollapse1">
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam arcu ante, pellentesque quis, rhoncus et, molestie in, lacus. Phasellus id purus id enim malesuada dictum. Maecenas tellus magna, tristique at, ultrices mollis, rhoncus id, sapien. Sed volutpat est ut magna. Nulla facilisi. Curabitur lacus diam, semper vitae, convallis sodales, adipiscing convallis, leo. Nulla dictum dignissim ligula. In posuere. In eleifend elit eget sapien. Suspendisse eget eros eget pede facilisis aliquam. Etiam rhoncus. Nullam quis tellus eget orci placerat aliquet.
+    <div>
+    </fieldset> 
+</div>
+<div>
+    <fieldset id="example2">
+    <div class="collapse" ></div>
+    <div class="expand" ></div>
+    <div id="jcollapse2">
     Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam arcu ante, pellentesque quis, rhoncus et, molestie in, lacus. Phasellus id purus id enim malesuada dictum. Maecenas tellus magna, tristique at, ultrices mollis, rhoncus id, sapien. Sed volutpat est ut magna. Nulla facilisi. Curabitur lacus diam, semper vitae, convallis sodales, adipiscing convallis, leo. Nulla dictum dignissim ligula. In posuere. In eleifend elit eget sapien. Suspendisse eget eros eget pede facilisis aliquam. Etiam rhoncus. Nullam quis tellus eget orci placerat aliquet.
     <div>
     </fieldset> 
