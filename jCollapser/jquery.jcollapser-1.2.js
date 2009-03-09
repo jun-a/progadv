@@ -6,6 +6,7 @@
  * @author Peter Halasz <skinner@gmail.com>
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GPL v3.0
  * @copyright (c) 2008, Peter Halasz all rights reserved.
+ * @version $Id$
  */
 (function($) {
 	/**
@@ -18,6 +19,7 @@
 	 *               
 	 * 'target'    : The actual element that will collapse or expand
 	 * 'state'     : The initial state we want it to be in
+	 * 			     Valid values: collapsed, expanded
 	 * 
 	 * <sample>
 	 * var options = {
