@@ -1,0 +1,11 @@
+﻿Change Log:
+
+v1.2:
+-Add cookie state support
+-Add initialization time state setting if cookie is not set.
+
+v1.1:
+-Restructure of code to allow multiple collapse elements on the same page
+
+v1.0:
+-Initial release
