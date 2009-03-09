@@ -1,5 +1,8 @@
 ﻿Change Log:
 
+v1.2.1:
+-Fixed error with init time state settings.
+
 v1.2:
 -Add cookie state support
 -Add initialization time state setting if cookie is not set.
