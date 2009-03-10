@@ -22,6 +22,7 @@
 		option.value = $(this).val();
 		option.text = $(this).text();
 		
+		/* IE hack to prevent inserting empty elements */
 		if(!$.support.scriptEval) {
 			option.appendChild(document.createTextNode($(this).text()));
 		}
