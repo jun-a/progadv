@@ -40,7 +40,7 @@
 		
 		while(node) {
 			next = node.nextSibling;
-			if(node.NodeType == 3) {
+			if(node.nodeType == 3) {
 				$ticker[0].removeChild(node);
 			}
 			node = next;
