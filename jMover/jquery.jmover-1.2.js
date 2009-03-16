@@ -4,7 +4,7 @@
  * @package jMover
  * @author Peter Halasz <skinn3r@gmail.com>
  * @license http://www.gnu.org/licenses/gpl-3.0.txt GPL v3.0
- * @copyright (c) 2008, Peter Halasz all rights reserved
+ * @copyright (c) 2008 - 2009, Peter Halasz all rights reserved
  */
 (function($) {
 	
