@@ -4,85 +4,115 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <title>jMover Demo page</title>
-<style type="text/css">
-    #left_select, #right_select {
-        float: left;
-        margin-right: 5px;
-        vertical-align: top;
-        width: 25%;
-    }
-    
-    #select_buttons {
-        float: left;
-        margin-right: 5px;
-        vertical-align: top;
-        width: 15%;
-        text-align: center;
-        margin-top: 10%;
-    }
-    
-    label {
-        text-align:left;
-        vertical-align:top;
-        width:7em;
-    }
-    
-    #selected, #not_selected {
-        margin-bottom:5px;
-        width:100%;
-    }
-    input, select, textarea {
-        border:1px solid #000000;
-        color:#000000;
-    }
-    
-    span.up {
-        background-color:#D4D0C8;
-        border:1px solid #000000;
-        color:#000000;
-        cursor:pointer;
-    }
-    
-    #select_buttons span a {
-        width: 20px;
-    }
+<style type="text/css" media="all">
+    @import "jquery.jmover.css";
 </style>
 <script type="text/javascript" src="jquery-1.3.2.min.js"></script>
-<script type="text/javascript" src="jquery.jmover.js"></script>
+<script type="text/javascript" src="jquery.jmover-1.2.js"></script>
 <script type="text/javascript">
     $(function() {
-        $("#move_right").click(function() {$.jMover('selected', 'not_selected');});
-        $("#move_left").click(function() {$.jMover('not_selected', 'selected');});
+        $("#example").jmover({
+            action: 'init',
+            create: 0,
+            sourceID: 'not_selected',
+            targetID: 'selected'
+            });
+        
+        $("#container").jmover({
+            action: 'init'
+            });
+        
+        /** 
+         * Replace this with an actual method of filling up your list.
+         * This is only for demonstration
+         */
+        for(i = 1; i < 5; i++) {
+            $("#container > #from > select").append('<option value="'+i+'">' + i + '</option>');
+        }
     });
 </script>
 </head>
 <body>
-<form>
-<div id="left_select">
-    <label>Select 1</label>
-    <select id="not_selected" name="not_selected" size="15" multiple="multiple">
-        <option value="1">One</option>
-        <option value="2">Two</option>
-        <option value="3">Three</option>
-    </select>
-</div>
-<div id="select_buttons">
+    <div id="examplePage">
+    <h1>jMover (a jQuery list item mover) v1.2</h1>
+    <p><b>What is jMover?</b> It is a jQuery plugin to move all or selected options between two select boxes</p>
+    <form>
+        <fieldset id="example" class="example">
+            <legend>jquery.jmover-1.2.js</legend>            
+            <div id="left_select" class="leftSelect">
+                <label>Select 1</label>
+                <select class="source" id="not_selected" name="not_selected" size="15" multiple="multiple">
+                    <option value="1">One</option>
+                    <option value="2">Two</option>
+                    <option value="3">Three</option>
+                </select>
+            </div>
+            <div class="selectButtons">
+                <p>
+                    <span id="exampleRightAll">
+                        <a>&nbsp;&gt;&gt;&nbsp;</a>
+                    </span>
+                </p>
+                <p>
+                    <span id="exampleRightSelect">
+                        <a>&nbsp;&gt;&nbsp;</a>
+                    </span>
+                </p>
+                <p>
+                    <span id="exampleLeftSelect">
+                        <a>&nbsp;&lt;&nbsp;</a>
+                    </span>
+                </p>
+                <p>
+                    <span id="exampleLeftAll">
+                        <a>&nbsp;&lt;&lt;&nbsp;</a>
+                    </span>
+                </p>
+            </div>
+            <div id="right_select" class="rightSelect">
+                <label>Select 2</label>
+                <select class="target" id="selected" name="selected[]" size="15" multiple="multiple">
+                </select>
+            </div>
+        </fieldset>
+        <h2>Init code for the above</h2>
+        <div class="javascript code">
+            <code>
+(<span class="keyword">function</span>() {
+    $(<span class="string">"#example"</span>).jmover({
+        action: <span class="string">'init'</span>,
+        create: 0,
+        sourceID: <span class="string">'not_selected'</span>,
+        targetID: <span class="string">'selected'</span>
+    });
+});
+        </code>
+        </div>
+        <br />
+        <h2>Dynamic List boxes</h2>
+        <fieldset id="container" class="example">
+            
+        </fieldset>
+        <h2>Init code for the dynamic boxes above</h2>
+        <div class="javascript code">
+            <code>
+(<span class="keyword">function</span>() {
+    $(<span class="string">"#container"</span>).jmover({
+        action: <span class="string">'init'</span>
+    });
+});
+            </code>
+        </div>
+        <p>Also I ran a simple for loop to fill it up. For production use one 
+        could fill it up with an AJAX call or another function.
+        </p>
+    </form>
     <p>
-        <span id="move_right" class="up">
-            <a>&nbsp;&gt;&nbsp;</a>
-        </span>
+    ... and that was it. Enjoy!
     </p>
-    <p>
-        <span id="move_left" class="up">
-            <a>&nbsp;&lt;&nbsp;</a>
-        </span>
+    <p class="credits">
+    2009 Peter Halasz - Design and development
     </p>
 </div>
-<div id="right_select">
-    <label>Select 2</label>
-    <select id="selected" name="selected[]" size="15" multiple="multiple">
-    </select>
-</div>
-</form>
 </body>
 </html>
