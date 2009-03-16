@@ -1,4 +1,8 @@
-﻿v1.1.1:
+﻿v1.2:
+-Restructure of code
+-New functionality: move all elements between the boxes.
+
+v1.1.1:
 -Fixed IE bug when the moved element is empty.
 -Updated to use jQuery 1.3.x
 
